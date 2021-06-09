@@ -1,8 +1,7 @@
 #!/bin/sh
 
 
-# Verify that a list of disallowed words are not included (case insensitive) in any committed files
-
+# 1. Verify that a list of disallowed words are not included (case insensitive) in any committed files
 disallowed="disallowed words but not phrases go here"
 git diff --cached --name-status | while read x file; do
         if [ "$x" == 'D' ]; then continue; fi
@@ -15,3 +14,20 @@ git diff --cached --name-status | while read x file; do
             fi
         done
 done || exit $?
+
+
+## 2. Verify personal email is being used for personal projects
+## Assumption is that all personal repos are in ~/sean/*
+PWD=`pwd`
+if [[ $PWD == *"sean"* ]]
+then
+  email=$(git config user.email)
+  if [[ $email == *"sa.maxwell"* ]]
+  then
+    echo "";
+  else
+    echo "Pre-Commit Hook: FAILED"
+    echo "  Invalid email \"${email}\" for repository \"$(git remote get-url origin)\""
+    exit 1;
+  fi;
+fi;
