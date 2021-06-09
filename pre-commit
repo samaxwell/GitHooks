@@ -1,0 +1,17 @@
+#!/bin/sh
+
+
+# Verify that a list of disallowed words are not included (case insensitive) in any committed files
+
+disallowed="disallowed words but not phrases go here"
+git diff --cached --name-status | while read x file; do
+        if [ "$x" == 'D' ]; then continue; fi
+        for word in $disallowed
+        do
+            if egrep -i $word $file ; then
+                echo "Pre-Commit Hook: FAILED"
+                echo "  Disallowed expression (or variant): \"${word}\" in file: ${file}"
+                exit 1
+            fi
+        done
+done || exit $?
